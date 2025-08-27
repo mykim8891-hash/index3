@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trang Đăng Nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #aaa;
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px 10px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error-msg {
+            color: red;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Đăng nhập</h2>
+    <div id="error" class="error-msg"></div>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Tài khoản" required />
+        <input type="password" id="password" placeholder="Mật khẩu" required />
+        <button type="submit">Đăng nhập</button>
+    </form>
+</div>
+
+<script>
+    // Tài khoản và mật khẩu cố định
+    const correctUsername = "admin";
+    const correctPassword = "123456";
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Ngăn form submit mặc định
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if(username === correctUsername && password === correctPassword) {
+            // Đăng nhập thành công, chuyển tới trang thoitrang1.html
+            window.location.href = "thoitrang1.html";
+        } else {
+            // Hiện thông báo lỗi
+            document.getElementById('error').textContent = "Sai tài khoản hoặc mật khẩu!";
+        }
+    });
+</script>
+
+</body>
+</html>

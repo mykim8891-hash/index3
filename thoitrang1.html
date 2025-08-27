@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FashionBrand | Cửa hàng thời trang online</title>
+  <meta name="description" content="Website bán quần áo thời trang: danh mục, tìm kiếm, lọc, sắp xếp, giỏ hàng, yêu thích, thanh toán, mã giảm giá. Thuần HTML/CSS/JS."/>
+  <style>
+    :root{
+      --bg:#0f172a;         /* nền tối sang trọng */
+      --card:#111827;       /* nền thẻ */
+      --muted:#94a3b8;      /* chữ phụ */
+      --text:#e5e7eb;       /* chữ chính */
+      --brand:#22c55e;      /* xanh lá hiện đại */
+      --brand-2:#16a34a;    /* xanh đậm */
+      --accent:#38bdf8;     /* xanh nhạt nhấn */
+      --danger:#ef4444;     /* đỏ lỗi */
+      --warning:#f59e0b;
+      --ok:#10b981;
+      --shadow:0 10px 25px rgba(0,0,0,.25);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#0b1224,#0f172a 30%,#0b1224);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{width:min(1200px,95%);margin-inline:auto}
+    .grid{display:grid;gap:16px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:10px 16px;background:var(--brand);color:#031;cursor:pointer;font-weight:600;box-shadow:var(--shadow);transition:.2s}
+    .btn:hover{transform:translateY(-1px);background:var(--brand-2)}
+    .btn.outline{background:#0000;border:1px solid #2dd4bf;color:#cffafe}
+    .btn.ghost{background:#0000;color:var(--text);border:1px solid #334155}
+    .pill{border-radius:999px;background:#0b132a;padding:6px 10px;border:1px solid #223152;color:#cbd5e1}
+    .badge{border-radius:999px;background:#172554;padding:2px 8px;border:1px solid #1e3a8a;color:#c7d2fe;font-size:12px}
+    .chip{border:1px solid #334155;border-radius:999px;padding:6px 10px;color:#cbd5e1;background:#0b1320;cursor:pointer}
+    header{position:sticky;top:0;z-index:50;background:rgba(6,10,20,.7);backdrop-filter:blur(8px);border-bottom:1px solid #1f2937}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:conic-gradient(from 210deg,var(--brand),#67e8f9 40%,#60a5fa 70%,#22c55e);box-shadow:0 0 0 3px #0b1220}
+    .actions{display:flex;align-items:center;gap:8px}
+    .searchbar{flex:1;display:flex;align-items:center;gap:8px;background:#0b1320;border:1px solid #223152;border-radius:999px;padding:6px 10px;margin-inline:16px}
+    .searchbar input{flex:1;background:transparent;border:none;color:var(--text);outline:none}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+
+    .hero{position:relative;margin-top:18px;border:1px solid #1f2937;border-radius:var(--radius);overflow:hidden;background:radial-gradient(1200px 400px at 80% -10%,rgba(34,197,94,.2),transparent 60%),linear-gradient(135deg,rgba(56,189,248,.12),rgba(34,197,94,.12));}
+    .hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center;padding:24px}
+    .hero h1{font-size:clamp(24px,4vw,40px);line-height:1.05;margin:0}
+    .hero p{color:var(--muted);margin:8px 0 16px}
+    .card{background:linear-gradient(180deg,#0b1320,#0b1628);border:1px solid #1f2937;border-radius:16px;padding:12px;box-shadow:var(--shadow)}
+    .price{font-weight:800}
+
+    .sidebar{position:sticky;top:76px;align-self:start}
+    .filters{display:grid;gap:10px}
+    .range{accent-color:var(--brand);width:100%}
+
+    .products{grid-template-columns:repeat(12,1fr)}
+    .product{grid-column:span 3;background:linear-gradient(180deg,#0b1320,#0b1628);border:1px solid #1f2937;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+    .product .thumb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#123 0,#0a1221 60%)}
+    .product .info{padding:12px;display:grid;gap:8px}
+    .product .meta{display:flex;justify-content:space-between;align-items:center}
+    .product .actions{display:flex;gap:8px}
+
+    .section{margin:24px 0}
+    .section h2{margin:0 0 12px;font-size:22px}
+
+    /* Cart Drawer */
+    .drawer{position:fixed;inset:0;display:none}
+    .drawer.show{display:block}
+    .drawer .overlay{position:absolute;inset:0;background:rgba(2,6,23,.6);backdrop-filter:blur(4px)}
+    .drawer .panel{position:absolute;right:0;top:0;height:100%;width:min(560px,92%);background:#0b1320;border-left:1px solid #1f2937;display:flex;flex-direction:column}
+    .drawer header{position:initial;background:transparent;border:0}
+    .cart-items{padding:12px;display:grid;gap:12px;overflow:auto;max-height:50vh}
+    .cart-summary{margin-top:auto;border-top:1px solid #1f2937;padding:12px;display:grid;gap:8px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none}
+    .modal.show{display:block}
+    .modal .overlay{position:absolute;inset:0;background:rgba(2,6,23,.7);backdrop-filter:blur(6px)}
+    .modal .box{position:relative;width:min(920px,94%);margin:6vh auto;background:#0b1320;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
+
+    /* Checkout */
+    form.checkout{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    form.checkout .field{display:grid}
+    input,select,textarea{background:#0b1320;border:1px solid #223152;border-radius:12px;padding:10px;color:var(--text);outline:0}
+    textarea{min-height:80px}
+
+    footer{margin:40px 0 20px;color:#9aa3b1}
+    .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+    /* Responsive */
+    @media (max-width: 1024px){
+      .product{grid-column:span 4}
+      .hero-inner{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .product{grid-column:span 6}
+      .nav{gap:8px;flex-wrap:wrap}
+      .searchbar{order:3;width:100%;margin:8px 0}
+      form.checkout{grid-template-columns:1fr}
+      .cols{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 480px){
+      .product{grid-column:span 12}
+      .cols{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand"><div class="logo"></div><span>FashionBrand</span></div>
+      <div class="searchbar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="#64748b" stroke-width="2"/></svg>
+        <input id="q" placeholder="Tìm sản phẩm, chất liệu, bộ sưu tập..."/>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="openWishlist" title="Yêu thích">❤ <span class="badge" id="wishCount">0</span></button>
+        <button class="btn" id="openCart" title="Giỏ hàng">🛒 <span class="badge" id="cartCount">0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="container hero">
+    <div class="hero-inner">
+      <div>
+        <h1>BST Thu & Đông 2025 – <span class="badge">NEW</span></h1>
+        <p>Chất liệu thân thiện môi trường, phom dáng tối ưu cho vóc dáng người Việt. Miễn phí đổi size trong 7 ngày, giao nhanh 2h nội thành.</p>
+        <div class="toolbar">
+          <button class="btn" onclick="scrollToProducts()">Mua ngay</button>
+          <button class="btn outline" onclick="document.getElementById('newsletter').scrollIntoView({behavior:'smooth'})">Nhận ưu đãi</button>
+          <div class="pill">Mã giảm giá hôm nay: <strong>SALE10</strong></div>
+        </div>
+      </div>
+      <div class="card grid" style="grid-template-columns:1.2fr .8fr;align-items:center">
+        <div>
+          <img src="https://images.unsplash.com/photo-1592878904946-b3cd4f3b8908?q=80&w=1200&auto=format&fit=crop" alt="lookbook" style="border-radius:12px"/>
+        </div>
+        <div class="grid" style="gap:10px">
+          <div class="card">
+            <div class="row"><strong>Freeship</strong><span class="badge">đơn từ 499K</span></div>
+          </div>
+          <div class="card">
+            <div class="row"><strong>Đổi trả</strong><span class="badge">trong 7 ngày</span></div>
+          </div>
+          <div class="card">
+            <div class="row"><strong>Bảo hành</strong><span class="badge">đường may 90 ngày</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container section grid" style="grid-template-columns:260px 1fr">
+    <!-- Sidebar Filters -->
+    <aside class="sidebar">
+      <div class="card">
+        <h3 style="margin:6px 0 12px">Bộ lọc</h3>
+        <div class="filters">
+          <div>
+            <small>Danh mục</small>
+            <div id="catFilters" class="grid" style="grid-template-columns:repeat(2,1fr);gap:8px"></div>
+          </div>
+          <div>
+            <small>Giá tối đa: <span id="priceVal">1.000.000</span>đ</small>
+            <input id="priceRange" type="range" min="99000" max="1000000" step="10000" class="range"/>
+          </div>
+          <div>
+            <small>Size</small>
+            <div id="sizeFilters" class="grid" style="grid-template-columns:repeat(4,1fr);gap:8px"></div>
+          </div>
+          <div>
+            <small>Chất liệu</small>
+            <div id="matFilters" class="grid" style="grid-template-columns:repeat(3,1fr);gap:8px"></div>
+          </div>
+          <div>
+            <small>Sắp xếp</small>
+            <select id="sortBy">
+              <option value="popular">Phổ biến</option>
+              <option value="priceAsc">Giá tăng dần</option>
+              <option value="priceDesc">Giá giảm dần</option>
+              <option value="newest">Mới nhất</option>
+            </select>
+          </div>
+          <button class="btn ghost" id="clearFilters">Xóa bộ lọc</button>
+        </div>
+      </div>
+      <div class="card" id="newsletter">
+        <h3 style="margin:6px 0 12px">Nhận tin & ưu đãi</h3>
+        <div class="grid" style="gap:8px">
+          <input id="subEmail" placeholder="Email của bạn"/>
+          <button class="btn" id="subBtn">Đăng ký</button>
+          <small class="muted">Mã -10% sẽ gửi vào email sau khi xác nhận.</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Products -->
+    <section style="display:grid;gap:12px">
+      <div class="row" style="align-items:center">
+        <h2 style="margin:0">Sản phẩm</h2>
+        <div class="pill" id="resultCount">0 kết quả</div>
+      </div>
+      <div id="tags" class="row" style="gap:8px;flex-wrap:wrap"></div>
+      <div id="productGrid" class="grid products"></div>
+    </section>
+  </main>
+
+  <!-- Cart Drawer -->
+  <div class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="overlay" onclick="toggleCart()"></div>
+    <div class="panel">
+      <header class="container nav" style="padding:12px 16px">
+        <strong>Giỏ hàng</strong>
+        <button class="btn ghost" onclick="toggleCart()">Đóng</button>
+      </header>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-summary">
+        <div class="grid" style="gap:8px">
+          <div class="row"><span>Tổng tạm tính</span><strong id="subTotal">0đ</strong></div>
+          <div class="row"><span>Vận chuyển</span><span id="shipping">0đ</span></div>
+          <div class="row"><span>Giảm giá</span><span id="discount">0đ</span></div>
+          <div class="row" style="border-top:1px solid #1f2937;padding-top:8px"><span>Tổng cộng</span><strong id="grandTotal">0đ</strong></div>
+        </div>
+        <div class="row" style="gap:8px">
+          <input id="coupon" placeholder="Nhập mã giảm giá" style="flex:1"/>
+          <button class="btn" onclick="applyCoupon()">Áp dụng</button>
+        </div>
+        <button class="btn" onclick="openCheckout()">Thanh toán</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wishlist Modal -->
+  <div class="modal" id="wishModal" aria-hidden="true">
+    <div class="overlay" onclick="toggleWish()"></div>
+    <div class="box">
+      <div class="container" style="padding:16px 16px">
+        <div class="row" style="align-items:center">
+          <h3 style="margin:0">Yêu thích</h3>
+          <button class="btn ghost" onclick="toggleWish()">Đóng</button>
+        </div>
+        <div id="wishItems" class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div class="modal" id="quickModal" aria-hidden="true">
+    <div class="overlay" onclick="toggleQuick()"></div>
+    <div class="box">
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;padding:12px">
+        <div id="quickImg" class="card" style="height:100%"></div>
+        <div class="grid" style="gap:10px;padding:4px 12px 12px">
+          <div class="row" style="gap:8px;align-items:center">
+            <h3 id="quickName" style="margin:0"></h3>
+            <span class="badge" id="quickCat"></span>
+          </div>
+          <div id="quickPrice" class="price"></div>
+          <div id="quickDesc" style="color:var(--muted)"></div>
+          <div>
+            <small>Chọn size</small>
+            <div id="quickSizes" class="row" style="gap:8px;flex-wrap:wrap"></div>
+          </div>
+          <div class="row" style="gap:8px">
+            <button class="btn" id="quickAdd">Thêm vào giỏ</button>
+            <button class="btn ghost" id="quickWish">❤ Yêu thích</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal" id="checkoutModal" aria-hidden="true">
+    <div class="overlay" onclick="toggleCheckout()"></div>
+    <div class="box">
+      <div style="padding:12px 16px;border-bottom:1px solid #1f2937" class="row">
+        <h3 style="margin:0">Thanh toán</h3>
+        <button class="btn ghost" onclick="toggleCheckout()">Đóng</button>
+      </div>
+      <div class="container" style="padding:12px 16px 20px">
+        <form class="checkout" id="checkoutForm">
+          <div class="field"><label>Họ tên</label><input required name="name"/></div>
+          <div class="field"><label>Số điện thoại</label><input required name="phone" pattern="[0-9]{9,11}"/></div>
+          <div class="field"><label>Email</label><input required type="email" name="email"/></div>
+          <div class="field"><label>Tỉnh/Thành</label><input required name="city"/></div>
+          <div class="field"><label>Quận/Huyện</label><input required name="district"/></div>
+          <div class="field"><label>Địa chỉ</label><input required name="address"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Ghi chú</label><textarea name="note" placeholder="Ví dụ: giao giờ hành chính"></textarea></div>
+          <div class="field"><label>Phương thức</label>
+            <select name="method">
+              <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+              <option value="bank">Chuyển khoản ngân hàng</option>
+              <option value="visa">Thẻ Visa/Master</option>
+            </select>
+          </div>
+          <div class="card" style="grid-column:1/-1">
+            <div class="row"><strong>Tóm tắt đơn hàng</strong><span id="sumCount">0 sản phẩm</span></div>
+            <div id="sumList" class="grid" style="gap:6px;margin-top:8px"></div>
+            <div class="row" style="border-top:1px solid #1f2937;margin-top:8px;padding-top:8px"><span>Tổng thanh toán</span><strong id="sumGrand">0đ</strong></div>
+          </div>
+          <button class="btn" style="grid-column:1/-1">Xác nhận đặt hàng</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer class="container">
+    <div class="cols">
+      <div>
+        <div class="brand" style="margin-bottom:8px"><div class="logo"></div><span>FashionBrand</span></div>
+        <small>© 2025 FashionBrand. Sản phẩm chính hãng, hoàn tiền 200% nếu phát hiện hàng giả.</small>
+      </div>
+      <div>
+        <strong>Dịch vụ</strong>
+        <ul>
+          <li>Chính sách bảo hành</li>
+          <li>Chính sách vận chuyển</li>
+          <li>Hướng dẫn chọn size</li>
+          <li>Chương trình thành viên</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Thông tin</strong>
+        <ul>
+          <li>Về chúng tôi</li>
+          <li>Tuyển dụng</li>
+          <li>Liên hệ hợp tác</li>
+          <li>Blog thời trang</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Kết nối</strong>
+        <div class="row" style="gap:8px"><span class="chip">Facebook</span><span class="chip">Instagram</span><span class="chip">TikTok</span></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ====== MOCK DATA ======
+    const PRODUCTS = [
+      {id:'tee-basic', name:'Áo thun Basic', price:159000, material:'Cotton', sizes:['S','M','L','XL'], category:'Áo', rating:4.7, created:'2025-08-01', img:'https://city89.com/wp-content/uploads/2023/04/bs-0094-mockup-bkack-front.jpg', desc:'Áo thun cotton 2 chiều, thấm hút tốt, co giãn nhẹ.'},
+      {id:'tee-oversize', name:'Áo thun Oversize', price:199000, material:'Cotton', sizes:['M','L','XL'], category:'Áo', rating:4.8, created:'2025-08-10', img:'https://pos.nvncdn.com/05016d-25618/ps/20230718_2ixOyFxbNF.png?v=1689656178', desc:'Form rộng, vải dày dặn, trend 2025.'},
+      {id:'shirt-linen', name:'Sơ mi Linen', price:329000, material:'Linen', sizes:['S','M','L'], category:'Áo', rating:4.6, created:'2025-07-20', img:'https://bizweb.dktcdn.net/100/481/348/products/z4528556645151-906f267da8f9af81c3926ca7fc6f9050-1689817398218.jpg?v=1689817405417', desc:'Mát mẻ, thoáng khí, phù hợp thời tiết nóng ẩm.'},
+      {id:'hoodie-fleece', name:'Hoodie Fleece', price:459000, material:'Fleece', sizes:['M','L','XL'], category:'Áo', rating:4.9, created:'2025-07-05', img:'https://product.hstatic.net/200000259629/product/1__1__679ae6c8d9c44c0da1fbb4611a78cd1a_master.png', desc:'Giữ ấm tốt, mũ trùm mềm, túi kangaroo tiện lợi.'},
+      {id:'jean-slim', name:'Quần Jean Slim', price:399000, material:'Denim', sizes:['28','29','30','31','32'], category:'Quần', rating:4.7, created:'2025-07-28', img:'https://product.hstatic.net/200000887901/product/an-nam-aristino-slim-fit-ajn01103__3__3dca3f8d9cdb44af86af16ee84e54656_940d2836fbea4944bce8f22c8a6814a3.jpg', desc:'Slim fit, co giãn nhẹ, tôn dáng.'},
+      {id:'jean-relax', name:'Quần Jean Relax', price:429000, material:'Denim', sizes:['30','31','32','33'], category:'Quần', rating:4.5, created:'2025-06-20', img:'https://product.hstatic.net/200000886795/product/img_3163.1_e12f5f52bd8547e6989a04096c4f7bf5.jpg', desc:'Ống suông thoải mái, chất denim dày dặn.'},
+      {id:'pant-chino', name:'Quần Chino', price:349000, material:'Twill', sizes:['29','30','31','32','33'], category:'Quần', rating:4.4, created:'2025-08-12', img:'https://wiisnt.vn/_next/image/?url=https%3A%2F%2Fapi.wiisnt.vn%2Fmedia%2Fcatalog%2Fproduct%2Fcache%2F3bdbc7ac0c3fb016006263cafc028ace%2Fb%2Fe%2Fbeige_1__1.jpg&w=2048&q=75', desc:'Chất liệu twill mềm, lịch sự, đi làm hay đi chơi đều hợp.'},
+      {id:'skirt-midi', name:'Váy Midi', price:379000, material:'Chiffon', sizes:['S','M','L'], category:'Váy', rating:4.6, created:'2025-07-15', img:'https://product.hstatic.net/200000642151/product/w-ts22s-008-blk___wo-sk23s-005-blk_060c269383a74d0293524763a7f169c7_master.jpg', desc:'Dịu dàng, bay bổng, tôn dáng.'},
+      {id:'dress-slip', name:'Đầm Slip', price:499000, material:'Satin', sizes:['S','M'], category:'Váy', rating:4.8, created:'2025-08-14', img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_HNVZRMqzD-1DFQ0F-O5OclwyLQhK2K0OmT1sM5dAhIZctOjMO7PtixGEzZupphzNGbk&usqp=CAU', desc:'Satin bóng nhẹ, sang trọng.'},
+      {id:'set-sport', name:'Set Đồ Thể Thao', price:289000, material:'Polyester', sizes:['S','M','L'], category:'Đồ bộ', rating:4.3, created:'2025-06-30', img:'https://bizweb.dktcdn.net/100/455/994/products/6l.jpg?v=1704855523467', desc:'Nhanh khô, co giãn, thoải mái vận động.'},
+      {id:'jacket-bomber', name:'Áo Khoác Bomber', price:479000, material:'Nylon', sizes:['M','L','XL'], category:'Áo khoác', rating:4.7, created:'2025-08-05', img:'https://product.hstatic.net/200000370449/product/39d5890d348eedd0b49f_56c4e697565743e6bab0e9b3ac51c9c8_master.jpg', desc:'Chống gió, form chuẩn, dễ phối.'},
+      {id:'jacket-denim', name:'Áo Khoác Denim', price:539000, material:'Denim', sizes:['M','L'], category:'Áo khoác', rating:4.9, created:'2025-07-25', img:'https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxhzq7103eu338_tn', desc:'Denim wash đẹp, bền bỉ.'},
+    ];
+
+    const CATEGORIES = [...new Set(PRODUCTS.map(p=>p.category))];
+    const SIZES = [...new Set(PRODUCTS.flatMap(p=>p.sizes))];
+    const MATERIALS = [...new Set(PRODUCTS.map(p=>p.material))];
+
+    // ====== STATE ======
+    let state = {
+      q:'',
+      cats: new Set(),
+      sizes: new Set(),
+      mats: new Set(),
+      maxPrice: 1000000,
+      sort: 'popular',
+      cart: JSON.parse(localStorage.getItem('cart')||'[]'),
+      wish: new Set(JSON.parse(localStorage.getItem('wish')||'[]')),
+      coupon: null,
+      selectedSize: null,
+    };
+
+    // ====== HELPERS ======
+    const VND = n => n.toLocaleString('vi-VN') + 'đ';
+    const el = sel => document.querySelector(sel);
+    const div = (cls,html='')=>{const d=document.createElement('div'); if(cls) d.className=cls; d.innerHTML=html; return d};
+
+    function persist(){
+      localStorage.setItem('cart', JSON.stringify(state.cart));
+      localStorage.setItem('wish', JSON.stringify([...state.wish]));
+    }
+
+    function match(p){
+      if(p.price>state.maxPrice) return false;
+      const text = (p.name+' '+p.material+' '+p.category).toLowerCase();
+      if(state.q && !text.includes(state.q.toLowerCase())) return false;
+      if(state.cats.size && !state.cats.has(p.category)) return false;
+      if(state.mats.size && !state.mats.has(p.material)) return false;
+      if(state.sizes.size && !p.sizes.some(s=>state.sizes.has(s))) return false;
+      return true;
+    }
+
+    function sortItems(list){
+      switch(state.sort){
+        case 'priceAsc': return list.sort((a,b)=>a.price-b.price);
+        case 'priceDesc': return list.sort((a,b)=>b.price-a.price);
+        case 'newest': return list.sort((a,b)=>new Date(b.created)-new Date(a.created));
+        default: return list.sort((a,b)=>b.rating-a.rating);
+      }
+    }
+
+    // ====== RENDER ======
+    function renderFilters(){
+      // Categories
+      const catBox = el('#catFilters'); catBox.innerHTML='';
+      CATEGORIES.forEach(c=>{
+        const x = div('chip'+(state.cats.has(c)?' badge':''), c); x.onclick=()=>{state.cats.has(c)?state.cats.delete(c):state.cats.add(c); renderAll();}; catBox.appendChild(x);
+      });
+      // Sizes
+      const sBox = el('#sizeFilters'); sBox.innerHTML='';
+      SIZES.forEach(s=>{const x = div('chip'+(state.sizes.has(s)?' badge':''), s); x.onclick=()=>{state.sizes.has(s)?state.sizes.delete(s):state.sizes.add(s); renderAll();}; sBox.appendChild(x);});
+      // Materials
+      const mBox = el('#matFilters'); mBox.innerHTML='';
+      MATERIALS.forEach(m=>{const x = div('chip'+(state.mats.has(m)?' badge':''), m); x.onclick=()=>{state.mats.has(m)?state.mats.delete(m):state.mats.add(m); renderAll();}; mBox.appendChild(x);});
+      // Price
+      el('#priceRange').value = state.maxPrice; el('#priceVal').textContent = state.maxPrice.toLocaleString('vi-VN');
+      // Sort
+      el('#sortBy').value = state.sort;
+      // Tags
+      const tags = el('#tags'); tags.innerHTML='';
+      if(state.q) tags.appendChild(tag('Tìm: '+state.q, ()=>{state.q=''; el('#q').value=''; renderAll();}));
+      state.cats.forEach(v=>tags.appendChild(tag(v,()=>{state.cats.delete(v); renderAll();})));
+      state.sizes.forEach(v=>tags.appendChild(tag('Size '+v,()=>{state.sizes.delete(v); renderAll();})));
+      state.mats.forEach(v=>tags.appendChild(tag(v,()=>{state.mats.delete(v); renderAll();})));
+      if(state.maxPrice<1000000) tags.appendChild(tag('≤ '+VND(state.maxPrice),()=>{state.maxPrice=1000000; renderAll();}));
+    }
+
+    function tag(text, onClose){
+      const t = div('pill', `<span>${text}</span> <button class="btn ghost" style="padding:2px 8px">x</button>`);
+      t.querySelector('button').onclick = onClose; return t;
+    }
+
+    function renderProducts(){
+      const grid = el('#productGrid'); grid.innerHTML='';
+      const items = sortItems(PRODUCTS.filter(match));
+      el('#resultCount').textContent = items.length + ' kết quả';
+      items.forEach(p=>{
+        const card = div('product');
+        card.innerHTML = `
+          <div class="thumb"><img alt="${p.name}" src="${p.img}" style="object-fit:cover;width:100%;height:100%"></div>
+          <div class="info">
+            <div class="row" style="gap:8px;align-items:center"><strong>${p.name}</strong> <span class="badge">${p.category}</span></div>
+            <div class="row" style="gap:8px;align-items:center">
+              <span class="price">${VND(p.price)}</span>
+              <small style="color:var(--muted)">• ${p.material}</small>
+              <small class="badge">★ ${p.rating}</small>
+            </div>
+            <div class="row" style="gap:6px;flex-wrap:wrap">
+              ${p.sizes.map(s=>`<span class="chip">${s}</span>`).join('')}
+            </div>
+            <div class="actions">
+              <button class="btn" onclick="addToCart('${p.id}')">Thêm</button>
+              <button class="btn ghost" onclick="openQuick('${p.id}')">Xem nhanh</button>
+              <button class="btn ghost" onclick="toggleWishItem('${p.id}')">❤</button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderCart(){
+      const box = el('#cartItems'); box.innerHTML='';
+      if(!state.cart.length){ box.innerHTML = '<div class="card">Giỏ hàng trống.</div>'; }
+      state.cart.forEach(item=>{
+        const p = PRODUCTS.find(x=>x.id===item.id);
+        const row = div('card row');
+        row.style.alignItems='center';
+        row.style.gap='10px';
+        row.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" style="width:64px;height:64px;object-fit:cover;border-radius:12px">
+          <div style="flex:1">
+            <div class="row" style="justify-content:space-between"><strong>${p.name}</strong><span>${VND(p.price)}</span></div>
+            <small style="color:var(--muted)">Size: ${item.size}</small>
+          </div>
+          <div class="row" style="gap:6px">
+            <button class="btn ghost" onclick="chgQty('${item.id}','${item.size}',-1)">-</button>
+            <div class="pill">${item.qty}</div>
+            <button class="btn ghost" onclick="chgQty('${item.id}','${item.size}',1)">+</button>
+            <button class="btn ghost" onclick="rmCart('${item.id}','${item.size}')">🗑</button>
+          </div>`;
+        box.appendChild(row);
+      });
+      const sub = state.cart.reduce((s,it)=>{
+        const p = PRODUCTS.find(x=>x.id===it.id); return s + p.price*it.qty; },0);
+      const ship = sub>=499000?0:30000;
+      const disc = state.coupon==='SALE10'? Math.round(sub*0.1):0;
+      const grand = sub + ship - disc;
+      el('#subTotal').textContent=VND(sub);
+      el('#shipping').textContent= ship? VND(ship): 'Miễn phí';
+      el('#discount').textContent= disc?('-'+VND(disc)):'0đ';
+      el('#grandTotal').textContent=VND(grand);
+      el('#cartCount').textContent= state.cart.reduce((s,i)=>s+i.qty,0);
+      persist();
+    }
+
+    function renderWish(){
+      const box = el('#wishItems'); box.innerHTML='';
+      const ids = [...state.wish];
+      if(!ids.length){ box.innerHTML='<div class="card">Danh sách yêu thích trống.</div>'; }
+      ids.forEach(id=>{
+        const p = PRODUCTS.find(x=>x.id===id);
+        const card = div('card');
+        card.innerHTML = `
+          <div class="row" style="gap:10px">
+            <img src="${p.img}" alt="${p.name}" style="width:72px;height:72px;object-fit:cover;border-radius:12px">
+            <div style="flex:1">
+              <strong>${p.name}</strong>
+              <div class="row" style="justify-content:space-between"><span class="price">${VND(p.price)}</span> <button class="btn" onclick="addToCart('${p.id}')">Thêm</button></div>
+            </div>
+            <button class="btn ghost" onclick="toggleWishItem('${p.id}')">🗑</button>
+          </div>`;
+        box.appendChild(card);
+      });
+      el('#wishCount').textContent = ids.length;
+      persist();
+    }
+
+    function openQuick(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      el('#quickImg').innerHTML = `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+      el('#quickName').textContent = p.name;
+      el('#quickCat').textContent = p.category;
+      el('#quickPrice').textContent = VND(p.price);
+      el('#quickDesc').textContent = p.desc;
+      const sizes = el('#quickSizes'); sizes.innerHTML='';
+      state.selectedSize = null;
+      p.sizes.forEach(s=>{
+        const x = div('chip', s); x.onclick=()=>{[...sizes.children].forEach(c=>c.classList.remove('badge')); x.classList.add('badge'); state.selectedSize=s;}; sizes.appendChild(x);
+      });
+      el('#quickAdd').onclick = ()=>{ if(!state.selectedSize){ alert('Vui lòng chọn size'); return;} addToCart(p.id, state.selectedSize); toggleQuick(); };
+      el('#quickWish').onclick = ()=>{ toggleWishItem(p.id); };
+      toggleQuick(true);
+    }
+
+    // ====== CART OPS ======
+    function addToCart(id, size=null){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!size){ size = p.sizes[0]; }
+      const exist = state.cart.find(i=>i.id===id && i.size===size);
+      if(exist) exist.qty += 1; else state.cart.push({id, size, qty:1});
+      renderCart();
+      toggleCart(true);
+    }
+    function chgQty(id,size,delta){
+      const it = state.cart.find(i=>i.id===id && i.size===size); if(!it) return;
+      it.qty += delta; if(it.qty<=0) state.cart = state.cart.filter(i=>!(i.id===id && i.size===size));
+      renderCart();
+    }
+    function rmCart(id,size){ state.cart = state.cart.filter(i=>!(i.id===id && i.size===size)); renderCart(); }
+    function applyCoupon(){
+      const code = el('#coupon').value.trim().toUpperCase();
+      if(['SALE10'].includes(code)){ state.coupon=code; alert('Áp dụng mã thành công!'); }
+      else { state.coupon=null; alert('Mã không hợp lệ'); }
+      renderCart();
+    }
+
+    // ====== WISHLIST ======
+    function toggleWishItem(id){
+      if(state.wish.has(id)) state.wish.delete(id); else state.wish.add(id);
+      renderWish();
+    }
+
+    // ====== CHECKOUT ======
+    function openCheckout(){
+      // fill summary
+      const list = el('#sumList'); list.innerHTML='';
+      if(!state.cart.length){ alert('Giỏ hàng trống'); return; }
+      state.cart.forEach(it=>{
+        const p = PRODUCTS.find(x=>x.id===it.id);
+        const row = div('row'); row.innerHTML = `<span>${p.name} × ${it.qty} (size ${it.size})</span><strong>${VND(p.price*it.qty)}</strong>`; list.appendChild(row);
+      });
+      el('#sumCount').textContent = state.cart.reduce((s,i)=>s+i.qty,0) + ' sản phẩm';
+      el('#sumGrand').textContent = el('#grandTotal').textContent;
+      toggleCheckout(true);
+    }
+
+    function submitOrder(e){
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+      const orderId = 'FB' + Math.random().toString(36).slice(2,8).toUpperCase();
+      alert('Đặt hàng thành công! Mã đơn: '+orderId+'\nChúng tôi đã gửi xác nhận đến '+data.email);
+      // reset
+      state.cart = []; state.coupon=null; persist();
+      renderCart();
+      toggleCheckout(false); toggleCart(false);
+    }
+
+    // ====== UI TOGGLES ======
+    function toggleCart(show){ const d=el('#cartDrawer'); d.classList[show?'add':'remove']('show'); d.setAttribute('aria-hidden', !show); }
+    function toggleWish(show){ const m=el('#wishModal'); m.classList[show?'add':'remove']('show'); m.setAttribute('aria-hidden', !show); }
+    function toggleQuick(show){ const m=el('#quickModal'); m.classList[show?'add':'remove']('show'); m.setAttribute('aria-hidden', !show); }
+    function toggleCheckout(show){ const m=el('#checkoutModal'); m.classList[show?'add':'remove']('show'); m.setAttribute('aria-hidden', !show); }
+    function scrollToProducts(){ document.getElementById('productGrid').scrollIntoView({behavior:'smooth'}); }
+
+    // ====== EVENTS ======
+    document.getElementById('openCart').onclick = ()=>toggleCart(true);
+    document.getElementById('openWishlist').onclick = ()=>toggleWish(true);
+    document.getElementById('priceRange').oninput = (e)=>{ state.maxPrice = +e.target.value; el('#priceVal').textContent = (+e.target.value).toLocaleString('vi-VN'); renderAll(); };
+    document.getElementById('q').oninput = (e)=>{ state.q = e.target.value; renderAll(); };
+    document.getElementById('sortBy').onchange = (e)=>{ state.sort = e.target.value; renderAll(); };
+    document.getElementById('clearFilters').onclick = ()=>{ state={...state, cats:new Set(), sizes:new Set(), mats:new Set(), maxPrice:1000000, sort:'popular'}; renderAll(); };
+    document.getElementById('subBtn').onclick = ()=>{ const email = el('#subEmail').value.trim(); if(!email){alert('Nhập email hợp lệ'); return;} alert('Đăng ký thành công! Hãy kiểm tra email để xác nhận.'); };
+    document.getElementById('checkoutForm').addEventListener('submit', submitOrder);
+
+    // ====== INIT ======
+    function renderAll(){ renderFilters(); renderProducts(); renderCart(); renderWish(); }
+    renderAll();
+  </script>
+</body>
+</html>

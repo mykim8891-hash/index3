@@ -611,3 +611,114 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liên hệ - Cửa hàng thời trang</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      color: #333;
+    }
+
+    .contact-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 20px;
+    }
+
+    .contact-info {
+      margin-bottom: 30px;
+    }
+
+    .contact-info p {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .contact-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .contact-form button {
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .contact-form button:hover {
+      background-color: #444;
+    }
+
+    .social-links a {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .social-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-container">
+    <h2>Liên hệ với chúng tôi</h2>
+
+    <div class="contact-info">
+      <p><strong>📍 Địa chỉ:</strong> 123 Đường Thời Trang, Quận 1, TP. HCM</p>
+      <p><strong>📞 Hotline:</strong> 0909 123 456</p>
+      <p><strong>📧 Email:</strong> lienhe@thoitrangstore.vn</p>
+      <p class="social-links">
+        <strong>🌐 Mạng xã hội:</strong>
+        <a href="#">Facebook</a> |
+        <a href="#">Instagram</a>
+      </p>
+      <p><strong>⏰ Giờ mở cửa:</strong> Thứ 2 - Thứ 7: 9h - 21h | Chủ nhật: 9h - 18h</p>
+    </div>
+
+    <form class="contact-form" action="send_contact.php" method="post">
+      <label for="name">Họ và tên:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email hoặc Số điện thoại:</label>
+      <input type="text" id="email" name="email" required>
+
+      <label for="message">Nội dung:</label>
+      <textarea id="message" name="message" rows="5" required></textarea>
+
+      <button type="submit">Gửi liên hệ</button>
+    </form>
+  </div>
+</body>
+</html>
+
+
